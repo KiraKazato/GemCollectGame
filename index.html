@@ -126,6 +126,39 @@
                 }
             }
 
+            // 3.5 行き止まりの完全撤廃（全てのセルが2つ以上の道を持つようにする）
+            let hasDeadEnd = true;
+            while (hasDeadEnd) {
+                hasDeadEnd = false;
+                for (let cy = 0; cy < ROWS; cy++) {
+                    for (let cx = 0; cx < COLS; cx++) {
+                        let connections = 0;
+                        if (maze[cy][cx].top) connections++;
+                        if (maze[cy][cx].bottom) connections++;
+                        if (maze[cy][cx].left) connections++;
+                        if (maze[cy][cx].right) connections++;
+                        
+                        if (connections === 1) {
+                            hasDeadEnd = true;
+                            // 閉じている壁をランダムに1つ開ける
+                            let dirs = [];
+                            if (cy > 0 && !maze[cy][cx].top) dirs.push('top');
+                            if (cy < ROWS - 1 && !maze[cy][cx].bottom) dirs.push('bottom');
+                            if (cx > 0 && !maze[cy][cx].left) dirs.push('left');
+                            if (cx < COLS - 1 && !maze[cy][cx].right) dirs.push('right');
+                            
+                            if (dirs.length > 0) {
+                                let dir = dirs[Math.floor(Math.random() * dirs.length)];
+                                if (dir === 'top') { maze[cy][cx].top = true; maze[cy - 1][cx].bottom = true; }
+                                if (dir === 'bottom') { maze[cy][cx].bottom = true; maze[cy + 1][cx].top = true; }
+                                if (dir === 'left') { maze[cy][cx].left = true; maze[cy][cx - 1].right = true; }
+                                if (dir === 'right') { maze[cy][cx].right = true; maze[cy][cx + 1].left = true; }
+                            }
+                        }
+                    }
+                }
+            }
+
             // 4. ランダムなセルを5つ選んで「3x3の部屋」にする
             // スタート(0,0)とゴール(6,4)は最初から確定で部屋にする
             maze[0][0].isRoom = true;
