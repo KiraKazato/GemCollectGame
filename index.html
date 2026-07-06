@@ -79,12 +79,14 @@
                 maze.push(row);
             }
 
-            // DFSで木構造の迷路を作成
+            // プリム法（Prim's Algorithm）で遠回りの少ない放射状の迷路を作成
             let stack = [[0, 0]];
             maze[0][0].visited = true;
 
             while (stack.length > 0) {
-                let current = stack[stack.length - 1];
+                // スタックからランダムに選ぶことでクネクネした道を減らし、直進や短い分岐を増やす
+                let randIndex = Math.floor(Math.random() * stack.length);
+                let current = stack[randIndex];
                 let cx = current[0];
                 let cy = current[1];
                 
@@ -103,12 +105,12 @@
                     if (next.dir === 'right') { maze[cy][cx].right = true; maze[next.y][next.x].left = true; }
                     stack.push([next.x, next.y]);
                 } else {
-                    stack.pop();
+                    stack.splice(randIndex, 1);
                 }
             }
 
-            // 3. 遠回りを防ぐため、ランダムに15個の追加ルート（抜け道）を作成
-            for (let i = 0; i < 15; i++) {
+            // 3. 遠回りを防ぐため、ランダムに25個の追加ルート（抜け道）を作成し、さらに通りやすくする
+            for (let i = 0; i < 25; i++) {
                 let cx = Math.floor(Math.random() * COLS);
                 let cy = Math.floor(Math.random() * ROWS);
                 let dirs = [];
