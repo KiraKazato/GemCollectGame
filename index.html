@@ -109,22 +109,19 @@
                 }
             }
 
-            // 3. 遠回りを防ぐため、ランダムに25個の追加ルート（抜け道）を作成し、さらに通りやすくする
-            for (let i = 0; i < 25; i++) {
-                let cx = Math.floor(Math.random() * COLS);
-                let cy = Math.floor(Math.random() * ROWS);
-                let dirs = [];
-                if (cy > 0 && !maze[cy][cx].top) dirs.push('top');
-                if (cy < ROWS - 1 && !maze[cy][cx].bottom) dirs.push('bottom');
-                if (cx > 0 && !maze[cy][cx].left) dirs.push('left');
-                if (cx < COLS - 1 && !maze[cy][cx].right) dirs.push('right');
-                
-                if (dirs.length > 0) {
-                    let dir = dirs[Math.floor(Math.random() * dirs.length)];
-                    if (dir === 'top') { maze[cy][cx].top = true; maze[cy - 1][cx].bottom = true; }
-                    if (dir === 'bottom') { maze[cy][cx].bottom = true; maze[cy + 1][cx].top = true; }
-                    if (dir === 'left') { maze[cy][cx].left = true; maze[cy][cx - 1].right = true; }
-                    if (dir === 'right') { maze[cy][cx].right = true; maze[cy][cx + 1].left = true; }
+            // 3. 遠回りを防ぐため、残っている「塞がった壁」を約80%の確率で全て開通させる（道を極限まで繋げる）
+            for (let cy = 0; cy < ROWS; cy++) {
+                for (let cx = 0; cx < COLS; cx++) {
+                    // 上の壁が閉じていたら、80%の確率で開ける
+                    if (cy > 0 && !maze[cy][cx].top && Math.random() < 0.8) {
+                        maze[cy][cx].top = true; 
+                        maze[cy - 1][cx].bottom = true;
+                    }
+                    // 左の壁が閉じていたら、80%の確率で開ける
+                    if (cx > 0 && !maze[cy][cx].left && Math.random() < 0.8) {
+                        maze[cy][cx].left = true; 
+                        maze[cy][cx - 1].right = true;
+                    }
                 }
             }
 
