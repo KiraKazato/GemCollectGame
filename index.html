@@ -687,7 +687,8 @@
                         enemy.patrolTimer = 0; // 進行方向（Y軸）に壁があった場合のみ方向転換
                     }
 
-                    if (distToPlayer < (player.size / 2 + enemy.size / 2 - 2)) {
+                    // 当たり判定（草むらに隠れている間は当たらないようにする）
+                    if (!player.isInBush && distToPlayer < (player.size / 2 + enemy.size / 2 - 2)) {
                         currentScene = 'RESULT';
                         resultMessage = 'ゲームオーバー...';
                     }
