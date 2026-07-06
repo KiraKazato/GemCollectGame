@@ -125,10 +125,12 @@
                 }
             }
 
-            // 3.5 行き止まりの完全撤廃（全てのセルが2つ以上の道を持つようにする）
+            // 3.5 行き止まりの完全撤廃（全てのセルが2つ以上の道を持つように強制する）
             let hasDeadEnd = true;
-            while (hasDeadEnd) {
+            let safetyCount = 0;
+            while (hasDeadEnd && safetyCount < 1000) {
                 hasDeadEnd = false;
+                safetyCount++;
                 for (let cy = 0; cy < ROWS; cy++) {
                     for (let cx = 0; cx < COLS; cx++) {
                         let connections = 0;
