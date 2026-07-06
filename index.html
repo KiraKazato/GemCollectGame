@@ -255,9 +255,11 @@
         const player = {
             x: 107, 
             y: 107, 
-            size: 36, // 【変更】30 -> 36 に大きくしました
+            size: 36, // プレイヤーを少し大きく表示する
             speed: 3,
-            // 【追加】スキル関連と状態変数
+            dirX: 1, // 初期状態は右向き
+            dirY: 0,
+            // 【追加】スキル関連のプロパティ【追加】スキル関連と状態変数
             skillCooldownMax: 60 * 45, // 【変更】クールタイムを45秒に延長
             skillCooldown: 0,
             magnetActiveFrames: 0,
@@ -473,11 +475,22 @@
                     player.speed = 3.0;
                 }
 
-                // 移動の入力判定（WASD追加）
+                // 移動の入力（WASD追加）
                 let moveUp = keys.ArrowUp || keys.w;
                 let moveDown = keys.ArrowDown || keys.s;
                 let moveLeft = keys.ArrowLeft || keys.a;
                 let moveRight = keys.ArrowRight || keys.d;
+
+                if (moveUp || moveDown || moveLeft || moveRight) {
+                    player.dirX = (moveRight ? 1 : 0) - (moveLeft ? 1 : 0);
+                    player.dirY = (moveDown ? 1 : 0) - (moveUp ? 1 : 0);
+                    
+                    // 斜め移動の場合は正規化に近い形で見た目の向きを整える（単純化）
+                    if (player.dirX !== 0 && player.dirY !== 0) {
+                        player.dirX *= 0.7;
+                        player.dirY *= 0.7;
+                    }
+                }
 
                 let nextX = player.x;
                 let nextY = player.y;
@@ -811,9 +824,31 @@
                 }
 
                 // プレイヤー
-                // 草むらにいる時は少し半透明になる演出
+                // 草むらにいる時は半透明に描画
                 ctx.fillStyle = player.isInBush ? 'rgba(255, 204, 0, 0.5)' : '#ffcc00';
                 ctx.fillRect(player.x, player.y, player.size, player.size);
+
+                // プレイヤーの顔（目）を描画
+                ctx.fillStyle = player.isInBush ? 'rgba(0, 0, 0, 0.5)' : '#333333';
+                let eyeOffsetX = player.dirX * 6;
+                let eyeOffsetY = player.dirY * 6;
+                let eyeSize = 4;
+                let eyeSpacing = 8;
+                
+                // 向きに応じて目の位置を計算
+                let centerEyeX = player.x + player.size / 2 + eyeOffsetX;
+                let centerEyeY = player.y + player.size / 2 + eyeOffsetY - 4; // 少し上の方に目を配置
+
+                // 左目と右目を描画（横向きなら縦に並ぶなど、進行方向に直交するように配置）
+                if (Math.abs(player.dirX) > Math.abs(player.dirY)) {
+                    // 横に移動している時
+                    ctx.fillRect(centerEyeX, centerEyeY - eyeSpacing / 2, eyeSize, eyeSize);
+                    ctx.fillRect(centerEyeX, centerEyeY + eyeSpacing / 2, eyeSize, eyeSize);
+                } else {
+                    // 縦に移動している時、または斜め
+                    ctx.fillRect(centerEyeX - eyeSpacing / 2, centerEyeY, eyeSize, eyeSize);
+                    ctx.fillRect(centerEyeX + eyeSpacing / 2, centerEyeY, eyeSize, eyeSize);
+                }
 
                 let centerX = player.x + player.size/2;
                 let centerY = player.y + player.size/2;
